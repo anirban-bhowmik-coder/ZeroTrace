@@ -1,0 +1,6 @@
+job_id,check_type,sectors_sampled,entropy_result,residual_data_found,result
+ZT-042,key_destruction_confirmation,,"key wrapped, unrecoverable",False,PASS
+ZT-041,random_sector_sampling,4096,high entropy,False,PASS
+ZT-040,key_destruction_confirmation,,"key wrapped, unrecoverable",False,PASS
+ZT-039,random_sector_sampling,512,low entropy region found,True,FAIL
+ZT-038,random_sector_sampling,3072,high entropy,False,PASS

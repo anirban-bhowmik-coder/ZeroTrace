@@ -1,0 +1,7 @@
+device_id,path,model,media_type,interface,capacity_gb,serial_number,sed_capable
+DEV-001,/dev/sda,WD Blue 1TB,HDD,SATA III,1000,WD-9X2K4L1,False
+DEV-002,/dev/nvme0n1,Samsung 980 Pro,NVMe,PCIe 4.0,512,S6B2NJ0R,False
+DEV-003,/dev/sdb,Seagate Barracuda,HDD,SATA III,2000,ST4000LM,False
+DEV-004,/dev/nvme1n1,Crucial P3,SED,NVMe / Opal 2.0,1000,CT2K9F5A,True
+DEV-005,/dev/sdc,SanDisk Ultra USB,USB,USB 3.0,64,SD4C7X1,False
+DEV-006,/dev/sdd,Toshiba Canvio,HDD,USB 3.0,4000,TB1J8K2,False

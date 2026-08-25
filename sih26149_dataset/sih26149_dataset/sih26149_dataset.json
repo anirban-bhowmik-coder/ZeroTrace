@@ -1,0 +1,225 @@
+{
+  "devices": [
+    {
+      "device_id": "DEV-001",
+      "path": "/dev/sda",
+      "model": "WD Blue 1TB",
+      "media_type": "HDD",
+      "interface": "SATA III",
+      "capacity_gb": 1000,
+      "serial_number": "WD-9X2K4L1",
+      "sed_capable": false
+    },
+    {
+      "device_id": "DEV-002",
+      "path": "/dev/nvme0n1",
+      "model": "Samsung 980 Pro",
+      "media_type": "NVMe",
+      "interface": "PCIe 4.0",
+      "capacity_gb": 512,
+      "serial_number": "S6B2NJ0R",
+      "sed_capable": false
+    },
+    {
+      "device_id": "DEV-003",
+      "path": "/dev/sdb",
+      "model": "Seagate Barracuda",
+      "media_type": "HDD",
+      "interface": "SATA III",
+      "capacity_gb": 2000,
+      "serial_number": "ST4000LM",
+      "sed_capable": false
+    },
+    {
+      "device_id": "DEV-004",
+      "path": "/dev/nvme1n1",
+      "model": "Crucial P3",
+      "media_type": "SED",
+      "interface": "NVMe / Opal 2.0",
+      "capacity_gb": 1000,
+      "serial_number": "CT2K9F5A",
+      "sed_capable": true
+    },
+    {
+      "device_id": "DEV-005",
+      "path": "/dev/sdc",
+      "model": "SanDisk Ultra USB",
+      "media_type": "USB",
+      "interface": "USB 3.0",
+      "capacity_gb": 64,
+      "serial_number": "SD4C7X1",
+      "sed_capable": false
+    },
+    {
+      "device_id": "DEV-006",
+      "path": "/dev/sdd",
+      "model": "Toshiba Canvio",
+      "media_type": "HDD",
+      "interface": "USB 3.0",
+      "capacity_gb": 4000,
+      "serial_number": "TB1J8K2",
+      "sed_capable": false
+    }
+  ],
+
+  "erasure_jobs": [
+    {
+      "job_id": "ZT-042",
+      "device_id": "DEV-002",
+      "method": "NVMe Sanitize - Crypto Erase",
+      "standard": "NIST 800-88 Purge",
+      "status": "COMPLETE",
+      "started_at": "2026-08-24T08:41:00Z",
+      "completed_at": "2026-08-24T08:43:20Z",
+      "technician_id": "TECH-07"
+    },
+    {
+      "job_id": "ZT-041",
+      "device_id": "DEV-003",
+      "method": "NIST 800-88 Clear",
+      "standard": "NIST 800-88 Clear",
+      "status": "COMPLETE",
+      "started_at": "2026-08-24T08:30:00Z",
+      "completed_at": "2026-08-24T09:14:00Z",
+      "technician_id": "TECH-07"
+    },
+    {
+      "job_id": "ZT-040",
+      "device_id": "DEV-004",
+      "method": "Crypto Erase - Key Destruction",
+      "standard": "NIST 800-88 Purge",
+      "status": "COMPLETE",
+      "started_at": "2026-08-24T08:15:00Z",
+      "completed_at": "2026-08-24T08:15:04Z",
+      "technician_id": "TECH-03"
+    },
+    {
+      "job_id": "ZT-039",
+      "device_id": "DEV-005",
+      "method": "DoD 5220.22-M 3-pass",
+      "standard": "DoD 5220.22-M",
+      "status": "FAILED_VERIFICATION",
+      "started_at": "2026-08-24T07:50:00Z",
+      "completed_at": "2026-08-24T08:02:00Z",
+      "technician_id": "TECH-03"
+    },
+    {
+      "job_id": "ZT-038",
+      "device_id": "DEV-006",
+      "method": "NIST 800-88 Purge - 3-pass",
+      "standard": "NIST 800-88 Purge",
+      "status": "COMPLETE",
+      "started_at": "2026-08-24T07:20:00Z",
+      "completed_at": "2026-08-24T07:51:00Z",
+      "technician_id": "TECH-07"
+    },
+    {
+      "job_id": "ZT-043",
+      "device_id": "DEV-001",
+      "method": "NIST 800-88 Purge - 3-pass",
+      "standard": "NIST 800-88 Purge",
+      "status": "QUEUED",
+      "started_at": null,
+      "completed_at": null,
+      "technician_id": "TECH-03"
+    }
+  ],
+
+  "verification_results": [
+    {
+      "job_id": "ZT-042",
+      "check_type": "key_destruction_confirmation",
+      "sectors_sampled": null,
+      "entropy_result": "key wrapped, unrecoverable",
+      "residual_data_found": false,
+      "result": "PASS"
+    },
+    {
+      "job_id": "ZT-041",
+      "check_type": "random_sector_sampling",
+      "sectors_sampled": 4096,
+      "entropy_result": "high entropy",
+      "residual_data_found": false,
+      "result": "PASS"
+    },
+    {
+      "job_id": "ZT-040",
+      "check_type": "key_destruction_confirmation",
+      "sectors_sampled": null,
+      "entropy_result": "key wrapped, unrecoverable",
+      "residual_data_found": false,
+      "result": "PASS"
+    },
+    {
+      "job_id": "ZT-039",
+      "check_type": "random_sector_sampling",
+      "sectors_sampled": 512,
+      "entropy_result": "low entropy region found",
+      "residual_data_found": true,
+      "result": "FAIL"
+    },
+    {
+      "job_id": "ZT-038",
+      "check_type": "random_sector_sampling",
+      "sectors_sampled": 3072,
+      "entropy_result": "high entropy",
+      "residual_data_found": false,
+      "result": "PASS"
+    }
+  ],
+
+  "certificates": [
+    {
+      "cert_id": "CERT-0042-A9F3",
+      "job_id": "ZT-042",
+      "issued_at": "2026-08-24T08:43:25Z",
+      "signature": "3f9a71c8b2e04d6f...e21c8b",
+      "signature_valid": true
+    },
+    {
+      "cert_id": "CERT-0041-B7C2",
+      "job_id": "ZT-041",
+      "issued_at": "2026-08-24T09:14:10Z",
+      "signature": "8b21f0a4c917de53...f04a19",
+      "signature_valid": true
+    },
+    {
+      "cert_id": "CERT-0040-D1E5",
+      "job_id": "ZT-040",
+      "issued_at": "2026-08-24T08:15:09Z",
+      "signature": "6c4e9d2a71b805fe...9a11c4",
+      "signature_valid": true
+    },
+    {
+      "cert_id": "CERT-0038-F2A0",
+      "job_id": "ZT-038",
+      "issued_at": "2026-08-24T07:51:05Z",
+      "signature": "1a5f7e3c9b402d88...bb02e7",
+      "signature_valid": true
+    }
+  ],
+
+  "audit_log": [
+    { "event_id": "EVT-1001", "job_id": "ZT-042", "action": "DEVICE_CONNECTED", "timestamp": "2026-08-24T08:40:50Z", "technician_id": "TECH-07" },
+    { "event_id": "EVT-1002", "job_id": "ZT-042", "action": "JOB_STARTED", "timestamp": "2026-08-24T08:41:00Z", "technician_id": "TECH-07" },
+    { "event_id": "EVT-1003", "job_id": "ZT-042", "action": "JOB_COMPLETED", "timestamp": "2026-08-24T08:43:20Z", "technician_id": "TECH-07" },
+    { "event_id": "EVT-1004", "job_id": "ZT-042", "action": "CERTIFICATE_ISSUED", "timestamp": "2026-08-24T08:43:25Z", "technician_id": "TECH-07" },
+    { "event_id": "EVT-1005", "job_id": "ZT-039", "action": "DEVICE_CONNECTED", "timestamp": "2026-08-24T07:49:40Z", "technician_id": "TECH-03" },
+    { "event_id": "EVT-1006", "job_id": "ZT-039", "action": "JOB_STARTED", "timestamp": "2026-08-24T07:50:00Z", "technician_id": "TECH-03" },
+    { "event_id": "EVT-1007", "job_id": "ZT-039", "action": "VERIFICATION_FAILED", "timestamp": "2026-08-24T08:02:00Z", "technician_id": "TECH-03" },
+    { "event_id": "EVT-1008", "job_id": "ZT-039", "action": "CERTIFICATE_WITHHELD", "timestamp": "2026-08-24T08:02:05Z", "technician_id": "TECH-03" }
+  ],
+
+  "recovery_cases": [
+    {
+      "case_id": "REC-201",
+      "device_id": "DEV-006",
+      "target_note": "Formatted USB, pre-erasure test image set",
+      "files_recovered": [
+        { "filename": "invoice_scan.jpg", "type": "JPEG", "confidence": "High", "fragmented": false },
+        { "filename": "notes.pdf", "type": "PDF", "confidence": "Medium", "fragmented": true },
+        { "filename": "backup.zip", "type": "ZIP", "confidence": "Low", "fragmented": true }
+      ]
+    }
+  ]
+}
