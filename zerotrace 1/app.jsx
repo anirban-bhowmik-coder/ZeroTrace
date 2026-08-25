@@ -22,6 +22,9 @@ import {
 
 import { dummyDevices, dummyJobs } from './dummyData';
 
+// Use environment variable for backend URL in production (e.g. Render), default to empty for local Vite proxy
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
+
 export default function App() {
   const [view, setView] = useState('landing'); // 'landing', 'booting', or 'dashboard'
   const [bootStep, setBootStep] = useState(0);
@@ -110,7 +113,7 @@ export default function App() {
     if (!wipeConfirmModal) return;
     setWipeError('');
     try {
-      const res = await fetch('/api/jobs/confirm', {
+      const res = await fetch(`${API_BASE}/api/jobs/confirm`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -748,7 +751,7 @@ export default function App() {
                       openRecoveryConfirmation(sel, devObj.name || sel, async () => {
                         triggerToast('Starting recovery scan on ' + sel + '...');
                         try {
-                          const res = await fetch('/api/recovery/confirm', {
+                          const res = await fetch(`${API_BASE}/api/recovery/confirm`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ device_path: sel, demo_mode: isDemo, post_erasure: isPost, operator_id: 'ZT-OPERATOR-01' })

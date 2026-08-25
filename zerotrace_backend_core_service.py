@@ -44,6 +44,8 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
+from fastapi.middleware.cors import CORSMiddleware
+
 # Enable CORS for frontend integration
 app.add_middleware(
     CORSMiddleware,
