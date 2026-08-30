@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SanitizeCore™ Complete Software Suite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #000; color: #fff; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.03); }
+        }
+        .animate-glow { animation: pulseGlow 4s ease-in-out infinite; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeIn { animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    </style>
+</head>
+<body class="h-full overflow-x-hidden selection:bg-white selection:text-black">
+
+    <div id="root" class="h-full"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        function App() {
+            const [mode, setMode] = useState('launcher'); // 'launcher', 'booting', or 'dashboard'
+            const [bootStep, setBootStep] = useState(0);
+            const [activeTab, setActiveTab] = useState('overview');
+            const [searchTerm, setSearchTerm] = useState('');
+            const [filterStatus, setFilterStatus] = useState('ALL');
+            const [networkPulse, setNetworkPulse] = useState(0);
+
+            useEffect(() => {
+                const timer = setInterval(() => {
+                    setNetworkPulse(prev => (prev + 1) % 100);
+                }, 50);
+                return () => clearInterval(timer);
+            }, []);
+
+            const handleLaunchApp = () => {
+                setMode('booting');
+                setBootStep(1);
+                setTimeout(() => setBootStep(2), 700);
+                setTimeout(() => setBootStep(3), 1400);
+                setTimeout(() => setBootStep(4), 2100);
+                setTimeout(() => setMode('dashboard'), 2800);
+            };
+
+            const [devices, setDevices] = useState([
+                { id: 'DEV-001', name: 'WD Blue 1TB HDD', type: 'HDD', capacity: '1TB', status: 'QUEUED', currentJob: 'ZT-043', tech: 'TECH-03' },
+                { id: 'DEV-002', name: 'Samsung NVMe 512GB', type: 'NVMe / SED', capacity: '512GB', status: 'COMPLETE', currentJob: 'ZT-042', tech: 'TECH-07' },
+                { id: 'DEV-003', name: 'Seagate Barracuda 2TB', type: 'HDD', capacity: '2TB', status: 'COMPLETE', currentJob: 'ZT-041', tech: 'TECH-07' },
+                { id: 'DEV-004', name: 'Crucial P3 1TB Opal 2.0', type: 'SED', capacity: '1TB', status: 'COMPLETE', currentJob: 'ZT-040', tech: 'TECH-03' },
+                { id: 'DEV-005', name: 'SanDisk Ultra USB', type: 'USB Flash', capacity: '64GB', status: 'FAILED_VERIFICATION', currentJob: 'ZT-039', tech: 'TECH-03' },
+                { id: 'DEV-006', name: 'Hitachi Enterprise 4TB', type: 'HDD', capacity: '4TB', status: 'COMPLETE', currentJob: 'ZT-038', tech: 'TECH-07' }
+            ]);
+
+            const [jobs, setJobs] = useState([
+                { jobId: 'ZT-038', deviceId: 'DEV-006', method: 'NIST 800-88 Purge - 3-pass', status: 'COMPLETE', technician: 'TECH-07', cert: 'CERT-0038-F2A0', entropy: 'High (3072 sectors)' },
+                { jobId: 'ZT-039', deviceId: 'DEV-005', method: 'DoD 5220.22-M 3-pass', status: 'FAILED_VERIFICATION', technician: 'TECH-03', cert: 'WITHHELD (EVT-1008)', entropy: 'Low entropy region found' },
+                { jobId: 'ZT-040', deviceId: 'DEV-004', method: 'Crypto Erase - Key Destruction', status: 'COMPLETE', technician: 'TECH-03', cert: 'CERT-0040-D1E5', entropy: 'Key Wrapping (0 risk)' },
+                { jobId: 'ZT-041', deviceId: 'DEV-003', method: 'NIST 800-88 Clear', status: 'COMPLETE', technician: 'TECH-07', cert: 'CERT-0041-B7C2', entropy: 'High (4096 sectors)' },
+                { jobId: 'ZT-042', deviceId: 'DEV-002', method: 'NVMe Sanitize - Crypto Erase', status: 'COMPLETE', technician: 'TECH-07', cert: 'CERT-0042-A9F3', entropy: 'Key Destruction Verified' },
+                { jobId: 'ZT-043', deviceId: 'DEV-001', method: 'NIST 800-88 Purge - 3-pass', status: 'QUEUED', technician: 'TECH-03', cert: 'PENDING', entropy: 'Not Evaluated' }
+            ]);
+
+            const [selectedCert, setSelectedCert] = useState(null);
+            const [toast, setToast] = useState('');
+
+            const triggerToast = (msg) => {
+                setToast(msg);
+                setTimeout(() => setToast(''), 3500);
+            };
+
+            const handleDispatchJob = (jobId) => {
+                setJobs(jobs.map(j => j.jobId === jobId ? { ...j, status: 'COMPLETE', cert: `CERT-${Math.floor(1000 + Math.random() * 9000)}-X9Z` } : j));
+                setDevices(devices.map(d => d.currentJob === jobId ? { ...d, status: 'COMPLETE' } : d));
+                triggerToast(`Job ${jobId} successfully executed and cryptographic certificate generated!`);
+            };
+
+            const handleQuarantineDevice = (deviceId) => {
+                setDevices(devices.map(d => d.id === deviceId ? { ...d, status: 'QUARANTINED' } : d));
+                triggerToast(`Device ${deviceId} moved to physical shredding quarantine.`);
+            };
+
+            const filteredJobs = jobs.filter(j => {
+                const matchesSearch = j.jobId.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                                      j.deviceId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                      j.method.toLowerCase().includes(searchTerm.toLowerCase());
+                const matchesFilter = filterStatus === 'ALL' || j.status === filterStatus;
+                return matchesSearch && matchesFilter;
+            });
+
+            // ================= LAUNCHER SCREEN =================
+            if (mode === 'launcher') {
+                return (
+                    <div className="h-full bg-black text-white flex items-center justify-center p-4 selection:bg-white selection:text-black overflow-hidden relative">
+                        <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-20">
+                            <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="wireGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stopColor="#ffffff" />
+                                        <stop offset="50%" stopColor="#444444" />
+                                        <stop offset="100%" stopColor="#ffffff" />
+                                    </linearGradient>
+                                </defs>
+                                <path d="M 0,150 Q 400,50 800,300 T 1600,200" fill="none" stroke="url(#wireGrad)" strokeWidth="1.5" />
+                                <path d="M 100,0 Q 500,400 900,150 T 1500,500" fill="none" stroke="url(#wireGrad)" strokeWidth="1" opacity="0.5" />
+                            </svg>
+                        </div>
+
+                        <div className="relative z-10 max-w-md w-full bg-zinc-950 border border-zinc-800 shadow-2xl p-8 flex flex-col items-center text-center animate-fadeIn">
+                            <div className="absolute -top-24 w-48 h-48 bg-white/10 rounded-full blur-3xl pointer-events-none animate-glow"></div>
+
+                            <div className="group relative mb-6 cursor-pointer" onClick={handleLaunchApp}>
+                                <div className="absolute -inset-1 bg-gradient-to-r from-white to-zinc-600 rounded-2xl blur opacity-30 group-hover:opacity-100 transition duration-500"></div>
+                                <div className="relative w-28 h-28 bg-black border-2 border-zinc-700 rounded-2xl flex flex-col items-center justify-center p-4 shadow-2xl transform group-hover:scale-105 transition-transform duration-300">
+                                    <svg className="w-12 h-12 text-white mb-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                                    </svg>
+                                    <span className="text-[10px] font-mono font-bold tracking-widest text-zinc-300">CORE v4.2</span>
+                                </div>
+                            </div>
+
+                            <h1 className="text-xl font-black tracking-tight text-white uppercase mb-1">SanitizeCore™ Desktop</h1>
+                            <p className="text-xs font-mono text-zinc-400 mb-6">Military-Grade Data Erasure & Compliance Node</p>
+
+                            <div className="inline-flex items-center gap-2 px-3 py-1 bg-zinc-900 border border-zinc-700 text-xs font-mono text-zinc-300 mb-8 uppercase tracking-wider">
+                                <span className="w-2 h-2 rounded-full bg-white animate-ping"></span>
+                                <span>Ready to Launch</span>
+                            </div>
+
+                            <button 
+                                onClick={handleLaunchApp}
+                                className="w-full bg-white hover:bg-zinc-200 text-black font-black py-4 px-6 text-sm uppercase tracking-wider transition-all transform hover:-translate-y-0.5 shadow-2xl flex items-center justify-center gap-3 cursor-pointer group"
+                            >
+                                <svg className="w-5 h-5 text-black group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                </svg>
+                                <span>Launch Application</span>
+                            </button>
+
+                            <div className="mt-6 pt-6 border-t border-zinc-900 w-full text-left">
+                                <p className="text-[11px] font-mono text-zinc-500 uppercase tracking-wider mb-2">Direct Execution Instructions:</p>
+                                <ol className="text-xs text-zinc-400 space-y-1 font-mono list-decimal list-inside">
+                                    <li>Click application icon or launch button above.</li>
+                                    <li>Verify wire telemetry stack connection.</li>
+                                    <li>Access the master erasure & certificate dashboard.</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            // ================= BOOTING SCREEN =================
+            if (mode === 'booting') {
+                return (
+                    <div className="h-full bg-black text-white font-mono flex flex-col items-center justify-center p-6 selection:bg-white selection:text-black">
+                        <div className="max-w-md w-full border border-zinc-800 p-8 bg-zinc-950 shadow-2xl animate-fadeIn">
+                            <div className="flex items-center gap-3 mb-6">
+                                <div className="p-2 bg-zinc-900 border border-zinc-700 animate-spin">
+                                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                                </div>
+                                <div>
+                                    <h2 className="text-sm font-bold uppercase tracking-widest text-white">Initializing SanitizeCore™</h2>
+                                    <p className="text-[10px] text-zinc-500">Secure Node Wire Stack v4.2</p>
+                                </div>
+                            </div>
+
+                            <div className="space-y-3 text-xs">
+                                <div className={`flex items-center justify-between p-2.5 border ${bootStep >= 1 ? 'border-white bg-zinc-900 text-white' : 'border-zinc-900 text-zinc-600'}`}>
+                                    <span>[01] Verifying NIST 800-88 compliance rules</span>
+                                    <span>{bootStep >= 1 ? 'OK' : 'WAIT'}</span>
+                                </div>
+                                <div className={`flex items-center justify-between p-2.5 border ${bootStep >= 2 ? 'border-white bg-zinc-900 text-white' : 'border-zinc-900 text-zinc-600'}`}>
+                                    <span>[02] Establishing wire telemetry node links</span>
+                                    <span>{bootStep >= 2 ? 'OK' : 'WAIT'}</span>
+                                </div>
+                                <div className={`flex items-center justify-between p-2.5 border ${bootStep >= 3 ? 'border-white bg-zinc-900 text-white' : 'border-zinc-900 text-zinc-600'}`}>
+                                    <span>[03] Loading cryptographic key vault</span>
+                                    <span>{bootStep >= 3 ? 'SECURE' : 'WAIT'}</span>
+                                </div>
+                                <div className={`flex items-center justify-between p-2.5 border ${bootStep >= 4 ? 'border-white bg-zinc-900 text-white' : 'border-zinc-900 text-zinc-600'}`}>
+                                    <span>[04] Launching master console interface</span>
+                                    <span>{bootStep >= 4 ? 'READY' : 'WAIT'}</span>
+                                </div>
+                            </div>
+                            
+                            <div className="mt-6 w-full bg-zinc-900 h-1.5 overflow-hidden">
+                                <div className="bg-white h-full transition-all duration-700" style={{ width: `${(bootStep / 4) * 100}%` }}></div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            // ================= DASHBOARD SCREEN =================
+            return (
+                <div className="h-full bg-black text-white font-sans flex flex-col selection:bg-white selection:text-black overflow-y-auto">
+                    {toast && (
+                        <div className="fixed top-5 right-5 z-50 bg-white text-black font-semibold px-4 py-3 shadow-2xl flex items-center gap-3 border border-white animate-bounce">
+                            <span className="w-2.5 h-2.5 bg-black rounded-full"></span>
+                            <span>{toast}</span>
+                        </div>
+                    )}
+
+                    <header className="border-b border-zinc-800 bg-zinc-950 backdrop-blur-md sticky top-0 z-40 px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-4">
+                        <div className="flex items-center gap-3 cursor-pointer" onClick={() => setMode('launcher')}>
+                            <div className="p-2.5 bg-zinc-900 border border-zinc-700 text-white">
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"/></svg>
+                            </div>
+                            <div>
+                                <h1 className="text-xl font-bold tracking-tight text-white uppercase">
+                                    Data Erasure & Compliance Dashboard
+                                </h1>
+                                <p className="text-xs text-zinc-400 font-mono">System Operations & Wire Stack Telemetry • © 2026 ZeroTrace Team. All Rights Reserved.</p>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2 bg-zinc-900 p-1.5 border border-zinc-800">
+                                <button 
+                                    onClick={() => setActiveTab('overview')}
+                                    className={`px-4 py-2 text-sm font-medium transition-all uppercase tracking-wider cursor-pointer ${activeTab === 'overview' ? 'bg-white text-black font-bold shadow-md' : 'text-zinc-400 hover:text-white'}`}
+                                >
+                                    Overview
+                                </button>
+                                <button 
+                                    onClick={() => setActiveTab('jobs')}
+                                    className={`px-4 py-2 text-sm font-medium transition-all uppercase tracking-wider cursor-pointer ${activeTab === 'jobs' ? 'bg-white text-black font-bold shadow-md' : 'text-zinc-400 hover:text-white'}`}
+                                >
+                                    Jobs & Verification
+                                </button>
+                                <button 
+                                    onClick={() => setActiveTab('devices')}
+                                    className={`px-4 py-2 text-sm font-medium transition-all uppercase tracking-wider cursor-pointer ${activeTab === 'devices' ? 'bg-white text-black font-bold shadow-md' : 'text-zinc-400 hover:text-white'}`}
+                                >
+                                    Device Inventory
+                                </button>
+                            </div>
+
+                            <button 
+                                onClick={() => setMode('launcher')}
+                                className="bg-zinc-900 hover:bg-zinc-800 text-zinc-300 text-xs font-semibold px-3.5 py-2.5 border border-zinc-700 transition-colors uppercase tracking-wider cursor-pointer"
+                            >
+                                Back to Launcher
+                            </button>
+                        </div>
+                    </header>
+
+                    <main className="flex-1 max-w-7xl w-full mx-auto p-6 flex flex-col gap-8 animate-fadeIn">
+                        {activeTab === 'overview' && (
+                            <div className="space-y-8">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                                    <div className="bg-zinc-950 border border-zinc-800 p-5 flex items-center justify-between shadow-xl">
+                                        <div>
+                                            <p className="text-xs font-mono uppercase tracking-wider text-zinc-400">Total Registered Devices</p>
+                                            <h3 className="text-3xl font-black text-white mt-1">6 Units</h3>
+                                            <span className="text-xs font-mono text-zinc-400 mt-2 inline-block">3 HDD, 3 NVMe/SED/USB</span>
+                                        </div>
+                                        <div className="p-3 bg-zinc-900 border border-zinc-700 text-white">
+                                            <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4 7v10c0 2.21 3.58 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.58 4 8 4s8-1.79 8-4M4 7c0-2.21 3.58-4 8-4s8 1.79 8 4m0 5c0 2.21-3.58 4-8 4s-8-1.79-8-4"/></svg>
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-zinc-950 border border-zinc-800 p-5 flex items-center justify-between shadow-xl">
+                                        <div>
+                                            <p className="text-xs font-mono uppercase tracking-wider text-zinc-400">Successful Sanitizations</p>
+                                            <h3 className="text-3xl font-black text-white mt-1">4 Jobs</h3>
+                                            <span className="text-xs font-mono text-zinc-300 mt-2 inline-block">NIST 800-88 & Crypto Erase</span>
+                                        </div>
+                                        <div className="p-3 bg-zinc-900 border border-zinc-700 text-white">
+                                            <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-zinc-950 border border-zinc-800 p-5 flex items-center justify-between shadow-xl">
+                                        <div>
+                                            <p className="text-xs font-mono uppercase tracking-wider text-zinc-400">Verification Failures</p>
+                                            <h3 className="text-3xl font-black text-zinc-300 mt-1">1 Incident</h3>
+                                            <span className="text-xs font-mono text-zinc-400 mt-2 inline-block">DEV-005 Low Entropy</span>
+                                        </div>
+                                        <div className="p-3 bg-zinc-900 border border-zinc-700 text-zinc-300">
+                                            <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-zinc-950 border border-zinc-800 p-5 flex items-center justify-between shadow-xl">
+                                        <div>
+                                            <p className="text-xs font-mono uppercase tracking-wider text-zinc-400">Pending Operations</p>
+                                            <h3 className="text-3xl font-black text-zinc-400 mt-1">1 Queued</h3>
+                                            <span className="text-xs font-mono text-zinc-400 mt-2 inline-block">Job ZT-043 (DEV-001)</span>
+                                        </div>
+                                        <div className="p-3 bg-zinc-900 border border-zinc-700 text-zinc-400">
+                                            <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                    <div className="lg:col-span-2 bg-zinc-950 border border-zinc-800 p-6 shadow-xl flex flex-col justify-between">
+                                        <div>
+                                            <div className="flex items-center gap-3 mb-4">
+                                                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"/></svg>
+                                                <h2 className="text-lg font-bold text-white uppercase tracking-wider">Executive Compliance Summary</h2>
+                                            </div>
+                                            <p className="text-zinc-300 text-sm leading-relaxed mb-4">
+                                                This evaluation tracks six distinct storage devices (<code className="text-white bg-zinc-900 px-1.5 py-0.5 border border-zinc-700">DEV-001</code> through <code className="text-white bg-zinc-900 px-1.5 py-0.5 border border-zinc-700">DEV-006</code>), corresponding erasure jobs, verification results, and issued compliance certificates over secure wire stacks. 
+                                            </p>
+                                            <div className="bg-black border border-zinc-800 p-4 space-y-3">
+                                                <h4 className="text-xs font-mono uppercase tracking-widest text-white">Key Audit Takeaways:</h4>
+                                                <ul className="space-y-2 text-sm text-zinc-300">
+                                                    <li className="flex items-start gap-2">
+                                                        <span className="text-white font-bold">•</span>
+                                                        <span><strong>Cryptographic Destruction:</strong> SED Opal 2.0 and NVMe drives (<code className="text-white">DEV-002</code>, <code className="text-white">DEV-004</code>) utilized instant key destruction protocols with zero residual data risk.</span>
+                                                    </li>
+                                                    <li className="flex items-start gap-2">
+                                                        <span className="text-zinc-400 font-bold">•</span>
+                                                        <span><strong>Failed USB Sanitization:</strong> <code className="text-zinc-300">DEV-005</code> failed DoD 5220.22-M verification due to low entropy sampling; certificate withheld under event <code className="text-zinc-300">EVT-1008</code>.</span>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <div className="mt-6 flex gap-4">
+                                            <button 
+                                                onClick={() => setActiveTab('jobs')}
+                                                className="flex-1 bg-white hover:bg-zinc-200 text-black font-bold py-3 px-4 shadow-lg transition-all flex items-center justify-center gap-2 uppercase tracking-wider text-xs cursor-pointer"
+                                            >
+                                                Inspect All Erasure Jobs
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-zinc-950 border border-zinc-800 p-6 shadow-xl flex flex-col justify-between">
+                                        <div>
+                                            <div className="flex items-center gap-3 mb-4">
+                                                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                                <h2 className="text-lg font-bold text-white uppercase tracking-wider">Corrective Actions</h2>
+                                            </div>
+                                            <div className="space-y-4">
+                                                <div className="p-3.5 bg-black border border-zinc-700">
+                                                    <div className="flex items-center justify-between mb-1">
+                                                        <span className="text-xs font-mono font-bold text-white uppercase">Quarantine DEV-005</span>
+                                                        <span className="text-xs font-mono bg-zinc-900 px-2 py-0.5 text-zinc-300 border border-zinc-800">High Priority</span>
+                                                    </div>
+                                                    <p className="text-xs text-zinc-400">Failed USB drive requires physical shredding or degaussing.</p>
+                                                    <button 
+                                                        onClick={() => handleQuarantineDevice('DEV-005')}
+                                                        className="mt-3 w-full bg-white hover:bg-zinc-200 text-black text-xs font-bold py-2 transition-colors uppercase tracking-wider cursor-pointer"
+                                                    >
+                                                        Confirm Physical Shredding
+                                                    </button>
+                                                </div>
+
+                                                <div className="p-3.5 bg-black border border-zinc-800">
+                                                    <div className="flex items-center justify-between mb-1">
+                                                        <span className="text-xs font-mono font-bold text-zinc-300 uppercase">Dispatch ZT-043</span>
+                                                        <span className="text-xs font-mono bg-zinc-900 px-2 py-0.5 text-zinc-400 border border-zinc-800">Queued</span>
+                                                    </div>
+                                                    <p className="text-xs text-zinc-400">Initiate NIST 800-88 Purge for WD Blue 1TB HDD.</p>
+                                                    <button 
+                                                        onClick={() => handleDispatchJob('ZT-043')}
+                                                        className="mt-3 w-full bg-zinc-900 hover:bg-zinc-800 text-white font-bold text-xs py-2 border border-zinc-700 transition-colors uppercase tracking-wider cursor-pointer"
+                                                    >
+                                                        Dispatch Job ZT-043
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {activeTab === 'jobs' && (
+                            <div className="space-y-6">
+                                <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-zinc-950 p-4 border border-zinc-800">
+                                    <input 
+                                        type="text"
+                                        placeholder="Search job ID, device, method..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        className="w-full md:w-80 bg-black border border-zinc-700 px-4 py-2.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-white"
+                                    />
+                                    <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto">
+                                        {['ALL', 'COMPLETE', 'FAILED_VERIFICATION', 'QUEUED'].map((status) => (
+                                            <button
+                                                key={status}
+                                                onClick={() => setFilterStatus(status)}
+                                                className={`px-3 py-2 text-xs font-mono uppercase tracking-wider transition-all border cursor-pointer ${filterStatus === status ? 'bg-white text-black font-bold border-white' : 'bg-black text-zinc-300 border-zinc-800 hover:border-zinc-600'}`}
+                                            >
+                                                {status.replace('_', ' ')}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="bg-zinc-950 border border-zinc-800 overflow-hidden shadow-2xl">
+                                    <table className="w-full text-left border-collapse">
+                                        <thead>
+                                            <tr className="border-b border-zinc-800 bg-black text-xs font-mono uppercase tracking-wider text-zinc-400">
+                                                <th className="p-4">Job ID</th>
+                                                <th className="p-4">Target Device</th>
+                                                <th className="p-4">Sanitization Standard</th>
+                                                <th className="p-4">Status</th>
+                                                <th className="p-4">Technician</th>
+                                                <th className="p-4">Certificate / Entropy</th>
+                                                <th className="p-4 text-right">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-zinc-900 text-sm">
+                                            {filteredJobs.map((job) => (
+                                                <tr key={job.jobId} className="hover:bg-zinc-900/40 transition-colors">
+                                                    <td className="p-4 font-mono font-bold text-white">{job.jobId}</td>
+                                                    <td className="p-4 font-semibold text-zinc-200">{job.deviceId}</td>
+                                                    <td className="p-4 text-zinc-300">{job.method}</td>
+                                                    <td className="p-4">
+                                                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-mono uppercase bg-zinc-900 text-white border border-zinc-700">
+                                                            {job.status.replace('_', ' ')}
+                                                        </span>
+                                                    </td>
+                                                    <td className="p-4 text-zinc-400 font-mono text-xs">{job.technician}</td>
+                                                    <td className="p-4 text-xs font-mono text-zinc-300">
+                                                        <div>{job.cert}</div>
+                                                        <div className="text-zinc-500">{job.entropy}</div>
+                                                    </td>
+                                                    <td className="p-4 text-right">
+                                                        {job.status === 'QUEUED' ? (
+                                                            <button 
+                                                                onClick={() => handleDispatchJob(job.jobId)}
+                                                                className="bg-white hover:bg-zinc-200 text-black font-bold px-3 py-1.5 text-xs transition-colors ml-auto uppercase tracking-wider cursor-pointer"
+                                                            >
+                                                                Run Wipe
+                                                            </button>
+                                                        ) : job.status === 'COMPLETE' ? (
+                                                            <button 
+                                                                onClick={() => setSelectedCert(job)}
+                                                                className="bg-zinc-900 hover:bg-zinc-800 text-white px-3 py-1.5 text-xs font-semibold border border-zinc-700 transition-colors ml-auto uppercase tracking-wider cursor-pointer"
+                                                            >
+                                                                View Cert
+                                                            </button>
+                                                        ) : (
+                                                            <span className="text-xs font-mono text-zinc-400 italic">Quarantine Req.</span>
+                                                        )}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        )}
+
+                        {activeTab === 'devices' && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {devices.map((dev) => (
+                                    <div key={dev.id} className="bg-zinc-950 border border-zinc-800 p-6 shadow-xl flex flex-col justify-between hover:border-white transition-all">
+                                        <div>
+                                            <div className="flex items-center justify-between mb-4">
+                                                <span className="font-mono text-white font-bold text-sm bg-zinc-900 px-2.5 py-1 border border-zinc-700">{dev.id}</span>
+                                                <span className="text-xs font-mono uppercase px-2.5 py-1 border bg-zinc-900 text-white border-zinc-700">
+                                                    {dev.status}
+                                                </span>
+                                            </div>
+                                            <h3 className="text-lg font-bold text-white mb-1 uppercase tracking-wider">{dev.name}</h3>
+                                            <div className="space-y-1.5 text-xs text-zinc-400 mb-6 font-mono">
+                                                <div className="flex justify-between"><span>Media Type:</span> <strong className="text-white">{dev.type}</strong></div>
+                                                <div className="flex justify-between"><span>Capacity:</span> <strong className="text-white">{dev.capacity}</strong></div>
+                                                <div className="flex justify-between"><span>Assigned Job:</span> <strong className="text-white">{dev.currentJob}</strong></div>
+                                            </div>
+                                        </div>
+                                        <div className="pt-4 border-t border-zinc-900 flex items-center justify-between">
+                                            <span className="text-xs font-mono text-zinc-500 uppercase tracking-widest">Tamper-Evident Ledger</span>
+                                            {dev.status === 'FAILED_VERIFICATION' ? (
+                                                <button 
+                                                    onClick={() => handleQuarantineDevice(dev.id)}
+                                                    className="bg-white hover:bg-zinc-200 text-black text-xs font-bold px-3 py-1.5 transition-colors uppercase tracking-wider cursor-pointer"
+                                                >
+                                                    Quarantine
+                                                </button>
+                                            ) : (
+                                                <span className="text-xs font-mono text-white font-semibold uppercase">Secure</span>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </main>
+
+                    {selectedCert && (
+                        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
+                            <div className="bg-zinc-950 border border-zinc-700 max-w-lg w-full p-6 shadow-2xl relative">
+                                <button onClick={() => setSelectedCert(null)} className="absolute top-4 right-4 text-zinc-400 hover:text-white font-bold text-lg cursor-pointer">✕</button>
+                                <h3 className="text-lg font-bold text-white uppercase tracking-wider mb-2">Cryptographic Certificate</h3>
+                                <p className="text-xs font-mono text-zinc-400 mb-4">{selectedCert.cert}</p>
+                                <div className="space-y-3 bg-black p-4 border border-zinc-800 text-xs font-mono text-zinc-300">
+                                    <div className="flex justify-between"><span>Job ID:</span> <strong className="text-white">{selectedCert.jobId}</strong></div>
+                                    <div className="flex justify-between"><span>Target Device:</span> <strong className="text-white">{selectedCert.deviceId}</strong></div>
+                                    <div className="flex justify-between"><span>Sanitization Standard:</span> <strong className="text-white">{selectedCert.method}</strong></div>
+                                    <div className="flex justify-between"><span>Digital Signature:</span> <strong className="text-white">Valid (SHA-256)</strong></div>
+                                </div>
+                                <div className="mt-6 flex justify-end gap-3">
+                                    <button onClick={() => { triggerToast(`Downloaded ${selectedCert.cert}`); setSelectedCert(null); }} className="bg-white hover:bg-zinc-200 text-black font-bold px-4 py-2 text-xs uppercase tracking-wider cursor-pointer">Download PDF</button>
+                                    <button onClick={() => setSelectedCert(null)} className="bg-zinc-900 hover:bg-zinc-800 text-zinc-300 px-4 py-2 text-xs font-semibold border border-zinc-700 uppercase tracking-wider cursor-pointer">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>

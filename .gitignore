@@ -1,0 +1,13 @@
+node_modules/
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+dist/
+.env
+.env.*
+.idea/
+ 
+# Test disk images
+*.bin
+

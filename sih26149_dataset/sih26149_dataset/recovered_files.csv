@@ -1,0 +1,4 @@
+case_id,device_id,target_note,filename,type,confidence,fragmented
+REC-201,DEV-006,"Formatted USB, pre-erasure test image set",invoice_scan.jpg,JPEG,High,False
+REC-201,DEV-006,"Formatted USB, pre-erasure test image set",notes.pdf,PDF,Medium,True
+REC-201,DEV-006,"Formatted USB, pre-erasure test image set",backup.zip,ZIP,Low,True
